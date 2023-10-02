@@ -391,8 +391,12 @@ namespace OpenTK.Windowing.Desktop
                         break;
 
                     case WindowState.Fullscreen:
-                        _cachedWindowClientSize = ClientSize;
-                        _cachedWindowLocation = ClientLocation;
+                        _cachedWindowClientSize = Size;
+                        _cachedWindowLocation = Location;
+                        if (previousWindowState == WindowState.Maximized)
+                        {
+                            _cachedWindowClientSize -= Size - ClientSize;
+                        }
                         var monitor = CurrentMonitor.ToUnsafePtr<GraphicsLibraryFramework.Monitor>();
                         var modePtr = GLFW.GetVideoMode(monitor);
                         GLFW.SetWindowMonitor(WindowPtr, monitor, 0, 0, modePtr->Width, modePtr->Height, modePtr->RefreshRate);
