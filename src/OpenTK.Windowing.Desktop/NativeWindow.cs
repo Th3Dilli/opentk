@@ -268,16 +268,30 @@ namespace OpenTK.Windowing.Desktop
             {
                 GraphicsLibraryFramework.Monitor* monitor = value.ToUnsafePtr<GraphicsLibraryFramework.Monitor>();
                 VideoMode* mode = GLFW.GetVideoMode(monitor);
-                Vector2i location = ClientLocation;
-                Vector2i size = ClientSize;
-                GLFW.SetWindowMonitor(
-                    WindowPtr,
-                    monitor,
-                    location.X,
-                    location.Y,
-                    size.X,
-                    size.Y,
-                    mode->RefreshRate);
+                Vector2i location = Location;
+                Vector2i size = Size;
+                if (WindowState == WindowState.Fullscreen)
+                {
+                    GLFW.SetWindowMonitor(
+                        WindowPtr,
+                        monitor,
+                        location.X,
+                        location.Y,
+                        mode->Width,
+                        mode->Height,
+                        mode->RefreshRate);
+                }
+                else
+                {
+                    GLFW.SetWindowMonitor(
+                        WindowPtr,
+                        null,
+                        location.X,
+                        location.Y,
+                        size.X,
+                        size.Y,
+                        0);
+                }
 
                 _currentMonitor = value;
             }
@@ -1098,6 +1112,11 @@ namespace OpenTK.Windowing.Desktop
             try
             {
                 OnMove(new WindowPositionEventArgs(x, y));
+                var currentMonitor = Monitors.GetMonitorFromWindow(WindowPtr);
+                if (!currentMonitor.Handle.Pointer.Equals(CurrentMonitor.Pointer))
+                {
+                    CurrentMonitor = currentMonitor.Handle;
+                }
             }
             catch (Exception e)
             {
